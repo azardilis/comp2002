@@ -2,15 +2,12 @@
   (lambda (x)
     (not (pair? x))))
 
-
 (define formula? 
   (lambda (expr)
-    (cond ((atom? expr) (if (atomic-prop? expr) #t #f))
-          ((pair? expr) (cond ((unary-prop? expr)
-                               (formula? (car (cdr expr))))
-                              ((binary-prop? expr) (traverse-args (cdr expr)))
-                              (else #f))))))
-                             
+    (cond ((atom? expr) (atomic-prop? expr))
+          ((unary-prop? expr) (formula? (cadr expr)))
+          ((binary-prop? expr) (traverse-args (cdr expr))))))
+                            
 (define atomic-prop?
   (lambda (expr)
     (and (atom? expr)
@@ -31,14 +28,13 @@
              (eq? (car expr) 'or))
          (> (length (cdr expr)) 1))))
 
-(define traverse-args 
+(define traverse-args
   (lambda (arg-list)
-    (if (null? arg-list)
-        #t
-        (if (formula? (car arg-list))
-            (traverse-args (cdr arg-list))
-            #f))))
-            
+    (cond ((null? arg-list) #t)
+          ((formula? (car arg-list))
+           (traverse-args (cdr arg-list)))
+          (else #f))))
+       
    
             
        
