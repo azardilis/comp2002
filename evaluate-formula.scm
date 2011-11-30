@@ -46,11 +46,18 @@
             (traverse-and-args(cdr arg-list) alist)
             #f))))
 
-;traverses the arguments and applies logical or to them
-(define traverse-or-args 
+
+(define traverse-or-args
   (lambda (arg-list alist)
-    (if (null? arg-list)
-        #f
-        (if (evaluate-formula (car arg-list) alist)
-            #t
-            (traverse-or-args(cdr arg-list) alist)))))
+    (cond ((null? arg-list) #f)
+          ((evaluate-formula (car arg-list) alist) #t)
+          (else (traverse-or-args(cdr arg-list) alist)))))
+
+;traverses the arguments and applies logical or to them
+;(define traverse-or-args 
+;  (lambda (arg-list alist)
+;    (if (null? arg-list)
+;        #f
+;        (if (evaluate-formula (car arg-list) alist)
+;            #t
+;            (traverse-or-args(cdr arg-list) alist)))))
