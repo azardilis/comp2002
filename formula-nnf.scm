@@ -8,9 +8,8 @@
 (define formula->nnf
   (lambda (exp)
     (cond ((atomic-prop? exp) exp)
-          ((unary-prop? exp) (if (atom? (cadr exp))
-                                   exp
-                                   (formula->nnf (normalize exp))))
+          ((unary-prop? exp) (if (atom? (cadr exp)) exp
+                                 (formula->nnf (normalize exp))))
           ((binary-prop? exp) (cons (car exp) (traverse-args (cdr exp)))))))
 
 (define unary-prop?
@@ -20,9 +19,8 @@
 
 (define binary-prop?
   (lambda (expr)
-    (and (or (eq? (car expr) 'and)
-             (eq? (car expr) 'or))
-         (> (length (cdr expr)) 1))))
+    (or (eq? (car expr) 'and)
+        (eq? (car expr) 'or))))
            
 (define atomic-prop?
   (lambda (expr)
@@ -36,7 +34,8 @@
 (define traverse-args
   (lambda (arg-list)
     (cond ((null? arg-list) '())
-          (else (cons (formula->nnf (car arg-list)) (traverse-args (cdr arg-list)))))))
+          (else (cons (formula->nnf (car arg-list)) 
+                      (traverse-args (cdr arg-list)))))))
 
 (define normalize
   (lambda (exp)
@@ -45,18 +44,21 @@
           ((not-or? exp) (make-and (cadr exp)))
           (else exp))))
 
+;case: not followed by or expression
 (define not-or?
   (lambda (exp)
     (cond ((binary-prop? (cadr exp))
            (eq? (caadr exp) 'or))
           (else #f))))
-  
+
+;case : not followed by and expression 
 (define not-and?
   (lambda (exp)
     (cond ((binary-prop? (cadr exp))
            (eq? (caadr exp) 'and))
           (else #f))))
 
+;case: not followed by not
 (define double-negation? 
   (lambda (exp)
     (eq? (operator exp) (car (cadr exp)))))
@@ -79,6 +81,6 @@
 
 (define make-nots
   (lambda (exp)
-    (if (null? exp)
-        '()
-        (cons (list 'not (car exp)) (make-nots (cdr exp))))))
+    (cond ((null? exp) '())
+          (else (cons (list 'not (car exp))
+                      (make-nots (cdr exp)))))))

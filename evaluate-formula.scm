@@ -1,7 +1,9 @@
+;assume that it is a well-formed formula(from spec) and all the vars have a binding in the a-list provided
 (define atom?
   (lambda (x)
     (not (pair? x))))
 
+;does the regular dispatching depending on the type of the expression
 (define evaluate-formula 
   (lambda (expr alist)
     (cond ((atom? expr) (find-binding expr alist))
@@ -9,43 +11,33 @@
           ((or-expr? expr) (traverse-or-args (cdr expr) alist))
           ((and-expr? expr) (traverse-and-args (cdr expr) alist)))))
 
-
-;given a symbol and an a-list, should return its binding in the list
+;finds the binding of a symbol in the list
+;assume it always finds it!
 (define find-binding 
   (lambda (symbol alist)
-    (if (null? alist)
-        -1
-        (if (eq? (caar alist) symbol)
-            (cdr (car alist))
-            (find-binding symbol (cdr alist))))))
+    (cond ((null? alist) -1)
+          ((eq? (caar alist) symbol) 
+           (cdr (car alist)))
+          (else (find-binding symbol (cdr alist))))))
 
 (define not-expr?
   (lambda (expr)
-    (and (not (atom? expr))
-         (eq? (car expr) 'not)
-         (= (length (cdr expr)) 1))))
+    (eq? (car expr) 'not)))
 
 (define or-expr? 
   (lambda (expr)
-    (and (not (atom? expr))
-         (eq? (car expr) 'or)
-         (> (length (cdr expr)) 1))))
-
+    (eq? (car expr) 'or)))
+        
 (define and-expr? 
   (lambda (expr)
-    (and (not (atom? expr))
-         (eq? (car expr) 'and)
-         (> (length (cdr expr)) 1))))
+    (eq? (car expr) 'and)))
 
-;traverses the arguments and applies logical and to them
 (define traverse-and-args
   (lambda (arg-list alist)
-    (if (null? arg-list)
-        #t
-        (if (evaluate-formula (car arg-list) alist)
-            (traverse-and-args(cdr arg-list) alist)
-            #f))))
-
+    (cond ((null? arg-list) #t)
+          ((evaluate-formula (car arg-list) alist) 
+           (traverse-and-args (cdr arg-list) alist))
+          (else #f))))
 
 (define traverse-or-args
   (lambda (arg-list alist)
@@ -53,11 +45,3 @@
           ((evaluate-formula (car arg-list) alist) #t)
           (else (traverse-or-args(cdr arg-list) alist)))))
 
-;traverses the arguments and applies logical or to them
-;(define traverse-or-args 
-;  (lambda (arg-list alist)
-;    (if (null? arg-list)
-;        #f
-;        (if (evaluate-formula (car arg-list) alist)
-;            #t
-;            (traverse-or-args(cdr arg-list) alist)))))
