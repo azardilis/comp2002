@@ -4,14 +4,21 @@
 
 (define formula->string 
    (lambda (expr)
-     (cond ((atom? expr) (to-upper expr))
+     (cond ((atom? expr) (sexp->upper expr))
            ((not-expr? expr) (not-argument expr))
            ((or-expr? expr) (traverse-or-args (cdr expr)))
            ((and-expr? expr) (traverse-and-args (cdr expr))))))
 
-(define to-upper
-  (lambda (s)
-    (list->string (list (char-upcase (car (string->list (symbol->string s))))))))
+(define sexp->upper
+  (lambda (exp)
+    (list->string (clist->upper (string->list (symbol->string exp))))))
+
+(define clist->upper
+  (lambda (clist)
+    (if (null? clist)
+        '()
+        (cons (char-upcase (car clist))
+              (clist->upper (cdr clist))))))
 
 (define not-expr?
   (lambda (expr)
