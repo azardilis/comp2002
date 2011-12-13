@@ -38,8 +38,8 @@
         (or (atom? exp)
             (not-expr? exp))))
     (cond ((no-brackets-not? (cadr expr))
-           (cons #\̃ (exp->charlist (cadr expr))))
-          (else (list #\̃ #\( (exp->charlist (car (cdr expr))) #\))))))
+           (cons #\~ (exp->charlist (cadr expr))))
+          (else (list #\~ #\( (exp->charlist (car (cdr expr))) #\))))))
 
 (define traverse-or-args
   (lambda (arg-list)

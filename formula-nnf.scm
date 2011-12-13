@@ -6,7 +6,7 @@
   (lambda (exp)
     (cond ((atom? exp) exp)
           ((not-expr? exp) (if (atom? (cadr exp)) exp
-                                 (formula->nnf (normalize exp))))
+                               (formula->nnf (normalize exp))))
           ((binary-prop? exp) (cons (car exp) (traverse-args (cdr exp)))))))
 
 (define traverse-args
