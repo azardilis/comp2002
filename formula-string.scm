@@ -1,34 +1,19 @@
-;;seems to work okay
-;;works in o(n) probably because of the flatten thingie which runs in n because it only uses cons which is constant
-;;if we assume that list works in constant
-(define atom?
-  (lambda (x)
-    (not (pair? x))))
+;;; COMP2002 Coursework 2
+;;; Question 2
+;;; Argyris Zardilis az2g10@ecs.soton.ac.uk
 
-(define not-expr?
-  (lambda (expr)
-    (eq? (car expr) 'not)))
-
-(define or-expr? 
-  (lambda (expr)
-    (eq? (car expr) 'or)))
-        
-(define and-expr? 
-  (lambda (expr)
-    (eq? (car expr) 'and)))
-
-(define fstr
+(define formula->string
   (lambda (exp)
-    (list->string (flatten (formula->string exp)))))
+    (list->string (flatten (exp->charlist exp)))))
 
-(define formula->string 
+(define exp->charlist
    (lambda (expr)
-     (cond ((atom? expr) (symbol->upstring expr))
+     (cond ((atom? expr) (symbol->upchars expr))
            ((not-expr? expr) (not-argument expr))
            ((or-expr? expr) (traverse-or-args (cdr expr)))
            ((and-expr? expr) (traverse-and-args (cdr expr))))))
 
-(define symbol->upstring
+(define symbol->upchars
   (lambda (s)
     (define charlist->upper
       (lambda (l)
@@ -48,31 +33,70 @@
 
 (define not-argument
   (lambda (expr)
-    (cond ((or (atom? (cadr expr))
-               (not-expr? (cadr expr)))
-           (cons #\̃ (formula->string (cadr expr))))
-          (else (list #\̃ #\( (formula->string (car (cdr expr))) #\))))))
-  
+    (define no-brackets-not?
+      (lambda (exp)
+        (or (atom? exp)
+            (not-expr? exp))))
+    (cond ((no-brackets-not? (cadr expr))
+           (cons #\̃ (exp->charlist (cadr expr))))
+          (else (list #\̃ #\( (exp->charlist (car (cdr expr))) #\))))))
+
 (define traverse-or-args
   (lambda (arg-list)
+    (define no-brackets-or?
+      (lambda (exp)
+        (or (atom? exp)
+            (not-expr? exp)
+            (or-expr? exp)
+            (and (binary-prop? exp)
+                 (null? (cddr exp))))))
     (cond ((null? (cdr arg-list))
-           (if (or (atom? (car arg-list))
-                   (not-expr? (car arg-list)))
-               (formula->string(car arg-list))
-            (list #\( (formula->string (car arg-list)) #\))))
-          ((or (atom? (car arg-list))
-               (not-expr? (car arg-list)))
-           (list (formula->string (car arg-list)) #\space #\v #\space (traverse-or-args (cdr arg-list))))
-          (else (list #\( (formula->string (car arg-list)) #\) #\space #\v #\space (traverse-or-args (cdr arg-list)))))))
+           (if (no-brackets-or? (car arg-list))
+               (exp->charlist(car arg-list))
+               (list #\( (exp->charlist (car arg-list)) #\))))
+          ((no-brackets-or? (car arg-list))
+           (list (exp->charlist (car arg-list)) #\space #\v #\space (traverse-or-args (cdr arg-list))))
+          (else (list #\( (exp->charlist (car arg-list)) #\) #\space #\v #\space (traverse-or-args (cdr arg-list)))))))
 
 (define traverse-and-args
   (lambda (arg-list)
+    (define no-brackets-and?
+      (lambda (exp)
+        (or (atom? exp)
+            (not-expr? exp)
+            (and-expr? exp)
+            (and (binary-prop? exp)
+                 (null? (cddr exp))))))
     (cond ((null? (cdr arg-list))
-           (if (or (atom? (car arg-list))
-                   (not-expr? (car arg-list)))
-            (formula->string(car arg-list))
-            (list #\( (formula->string (car arg-list)) #\))))
-          ((or (atom? (car arg-list))
-               (not-expr? (car arg-list)))
-           (list (formula->string (car arg-list)) #\space #\^ #\space (traverse-and-args (cdr arg-list))))
-          (else (list #\( (formula->string (car arg-list)) #\) #\space #\^ #\space (traverse-and-args (cdr arg-list)))))))
+           (if (no-brackets-and? (car arg-list))
+            (exp->charlist(car arg-list))
+            (list #\( (exp->charlist (car arg-list)) #\))))
+          ((no-brackets-and? (car arg-list))
+           (list (exp->charlist (car arg-list)) #\space #\^ #\space (traverse-and-args (cdr arg-list))))
+          (else (list #\( (exp->charlist (car arg-list)) #\) #\space #\^ #\space (traverse-and-args (cdr arg-list)))))))
+
+(define atom?
+  (lambda (x)
+    (not (pair? x))))
+
+(define not-expr?
+  (lambda (expr)
+    (eq? (car expr) 'not)))
+
+(define or-expr? 
+  (lambda (expr)
+    (eq? (car expr) 'or)))
+        
+(define and-expr? 
+  (lambda (expr)
+    (eq? (car expr) 'and)))
+
+(define binary-prop?
+  (lambda (exp)
+    (or (eq? (car exp) 'and)
+        (eq? (car exp) 'or))))
+
+;;;comments on my solution
+;;;
+;;;
+
