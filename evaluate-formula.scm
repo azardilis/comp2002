@@ -17,15 +17,6 @@
   (lambda (symbol alist)
     (cdr (assq symbol alist))))
 
-;finds the binding of a symbol in the list
-;assume it always finds it!
-;(define find-binding 
-;  (lambda (symbol alist)
-;    (cond ((null? alist) -1)
-;          ((eq? (caar alist) symbol) 
-;           (cdr (car alist)))
-;          (else (find-binding symbol (cdr alist))))))
-
 (define not-expr?
   (lambda (expr)
     (eq? (car expr) 'not)))

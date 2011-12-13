@@ -14,8 +14,7 @@
 
 (define unary-prop?
   (lambda (expr)
-    (and (eq? (car expr) 'not)
-         (= (length (cdr expr)) 1))))
+    (eq? (car expr) 'not)))
 
 (define binary-prop?
   (lambda (expr)
@@ -82,5 +81,5 @@
 (define make-nots
   (lambda (exp)
     (cond ((null? exp) '())
-          (else (cons (list 'not (car exp))
+          (else (cons (cons 'not (car exp))
                       (make-nots (cdr exp)))))))

@@ -20,21 +20,18 @@
 (define unary-prop?
   (lambda (expr)
     (and (eq? (car expr) 'not)
-         (= (length (cdr expr)) 1))))
+         (if (null? (cdr expr)) #f
+             (null? (cddr expr))))))
 
 (define binary-prop?
   (lambda (expr)
     (and (or (eq? (car expr) 'and)
              (eq? (car expr) 'or))
-         (> (length (cdr expr)) 0))))
+         (not (null? (cdr expr))))))
 
 (define traverse-args
-  (lambda (arg-list)
-    (cond ((null? arg-list) #t)
-          ((formula? (car arg-list))
-           (traverse-args (cdr arg-list)))
-          (else #f))))
-       
-   
-            
-       
+    (lambda (arg-list)
+      (cond ((null? arg-list) #t)
+            ((formula? (car arg-list))
+                (traverse-args (cdr arg-list)))
+            (else #f))))
