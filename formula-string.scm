@@ -15,13 +15,7 @@
 
 (define symbol->upchars
   (lambda (s)
-    (define charlist->upper
-      (lambda (l)
-        (if (null? l)
-            '()
-            (cons (char-upcase (car l))
-                  (charlist->upper (cdr l))))))
-    (charlist->upper (string->list (symbol->string s)))))
+    (map char-upcase (string->list (symbol->string s)))))
     
 (define (flatten char-list)
   (define (flatten-helper char-list)
@@ -76,27 +70,27 @@
           (else (list #\( (exp->charlist (car arg-list)) #\) #\space #\^ #\space (traverse-and-args (cdr arg-list)))))))
 
 (define atom?
-  (lambda (x)
-    (not (pair? x))))
+  (lambda (x) (not (pair? x))))
 
 (define not-expr?
-  (lambda (expr)
-    (eq? (car expr) 'not)))
+  (lambda (expr) (eq? (car expr) 'not)))
 
 (define or-expr? 
-  (lambda (expr)
-    (eq? (car expr) 'or)))
+  (lambda (expr) (eq? (car expr) 'or)))
         
 (define and-expr? 
-  (lambda (expr)
-    (eq? (car expr) 'and)))
+  (lambda (expr) (eq? (car expr) 'and)))
 
 (define binary-prop?
   (lambda (exp)
     (or (eq? (car exp) 'and)
         (eq? (car exp) 'or))))
 
-;;;comments on my solution
-;;;
-;;;
+;;; Function formula->string firstly calls the expr->charlist. exp->charlist makes a dispatch
+;;; on the type of the expression and at the end it returns a list with all the characters that
+;;; will form the string. If the expression is a not expression it invokes not-argument function
+;;; which does the conversion to string. If it's a or/and expression its arguments are traversed
+;;; and transformed to characters list. The results are combined with (list). At the end the 
+;;; resulting list is flatten and converted to string with list->string in the top-level function
+;;; formula->string.
 
